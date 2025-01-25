@@ -1,0 +1,20 @@
+[
+    {
+        "model": "api.activity",
+        "pk": 1,
+        "fields": {
+            "name": "Autofahren",
+            "category": "Transport",
+            "co2_per_unit": 0.2
+        }
+    },
+    {
+        "model": "api.activity",
+        "pk": 2,
+        "fields": {
+            "name": "Stromverbrauch",
+            "category": "Energie",
+            "co2_per_unit": 0.5
+        }
+    }
+]
