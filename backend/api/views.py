@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from .models import Activity, UserEntry
 from .serializers import ActivitySerializer, UserEntrySerializer
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 
 User = get_user_model()
 
@@ -16,6 +16,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
 
 class UserEntryViewSet(viewsets.ModelViewSet):
     queryset = UserEntry.objects.all()
@@ -31,6 +32,7 @@ class UserEntryViewSet(viewsets.ModelViewSet):
         user_entries = UserEntry.objects.filter(user=request.user)
         serializer = self.get_serializer(user_entries, many=True)
         return Response(serializer.data)
+
 
 class RegisterUserView(APIView):
     permission_classes = [AllowAny] 
@@ -54,6 +56,21 @@ class RegisterUserView(APIView):
 
         return Response({"token": token.key}, status=status.HTTP_201_CREATED)
     
+
+class LoginView(APIView):
+    permission_classes = [AllowAny] 
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        user = authenticate(username=username, password=password)
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({"token": token.key}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
